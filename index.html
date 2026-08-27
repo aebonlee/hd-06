@@ -17,10 +17,6 @@
     ============================================================
   -->
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
-
   <style>
     /* =========================================================
        1. DESIGN TOKENS
@@ -909,9 +905,9 @@
     }
   </style>
 <!-- === HD:META:BEGIN (자동 생성 — scripts 로 다시 굽습니다) === -->
-<link rel="icon" href="https://aebonlee.github.io/hd-06/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="https://aebonlee.github.io/hd-06/favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="https://aebonlee.github.io/hd-06/apple-touch-icon.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="canonical" href="https://aebonlee.github.io/hd-06/">
 <meta name="robots" content="index,follow">
 <meta property="og:type" content="website">
@@ -1068,12 +1064,35 @@
           <strong>공유 폴더 미리보기</strong>
           <span>파일이 보이지 않으면 Google Drive에서 로그인 또는 권한을 확인하세요.</span>
         </div>
-        <iframe
-          class="folder-frame"
-          src="https://drive.google.com/embeddedfolderview?id=1a1sIIchtB9inxF4-0BX4MLEe8VBxiao5#grid"
-          title="HD 프로젝트 Google Drive 공유 폴더"
-          loading="lazy">
-        </iframe>
+        <!-- 미리보기는 **누를 때만** 불러온다.
+             처음부터 iframe 을 두면 사내 폐쇄망에서 응답 없이 기다리다
+             그 자리가 한참 빈 상자로 남는다. 무엇이 잘못됐는지도 안 보인다.
+             눌러서 부르면 인터넷이 될 때만 뜨고, 안 될 때는 아래 안내가 그대로 남는다. -->
+        <div class="folder-frame" id="drive-preview"
+             style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:28px">
+          <p style="margin:0;color:#5C6B7A;line-height:1.7">
+            공유 폴더 미리보기는 <strong>인터넷 연결이 필요합니다</strong>.<br>
+            사내망에서는 열리지 않으니 아래 “새 탭에서 열기”를 쓰세요.
+          </p>
+          <button type="button" id="drive-preview-load" class="btn btn-secondary">미리보기 불러오기</button>
+        </div>
+        <script>
+          document.getElementById('drive-preview-load').addEventListener('click', function () {
+            var box = document.getElementById('drive-preview');
+            box.innerHTML = '<p style="color:#5C6B7A">불러오는 중…</p>';
+            var f = document.createElement('iframe');
+            f.className = 'folder-frame';
+            f.title = 'HD 프로젝트 Google Drive 공유 폴더';
+            f.src = 'https://drive.google.com/embeddedfolderview?id=1a1sIIchtB9inxF4-0BX4MLEe8VBxiao5#grid';
+            // 폐쇄망에서는 onload 도 onerror 도 안 올 수 있다 — 시간을 재서 스스로 알린다
+            var t = setTimeout(function () {
+              box.innerHTML = '<p style="color:#C2451F;line-height:1.7">'
+                + '미리보기를 불러오지 못했습니다.<br>인터넷이 막혀 있거나 폴더 권한이 없는 경우입니다.</p>';
+            }, 8000);
+            f.addEventListener('load', function () { clearTimeout(t); });
+            box.replaceWith(f);
+          });
+        </script>
       </div>
     </section>
 
